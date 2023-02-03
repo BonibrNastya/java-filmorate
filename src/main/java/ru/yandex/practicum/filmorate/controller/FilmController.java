@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -25,11 +23,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        LocalDate bdMovie = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate().isBefore(bdMovie)) {
-            log.warn("Введена дата релиза в прошлом: {}", film.getReleaseDate());
-            throw new ValidationException("Дата релиза не может быть раньше рождения кино.");
-        }
         film.setId(idCounter);
         films.put(idCounter, film);
         idCounter++;

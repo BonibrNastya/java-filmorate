@@ -1,23 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import ru.yandex.practicum.filmorate.annotation.userLogin.ValidLogin;
 
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 
-@Getter
-@Setter
-@ToString
+@Data
 public class User {
     private int id;
     @Email(message = "Email should be valid")
     private String email;
-    @NotBlank
+    @ValidLogin(message = "Невалидный логин.")
     private String login;
     @Past
     private LocalDate birthday;

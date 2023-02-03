@@ -1,31 +1,22 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import ru.yandex.practicum.filmorate.annotation.filmDate.ValidDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-import static java.time.LocalDate.*;
-
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
 public class Film {
     private int id;
-    @NotEmpty
+    @NotEmpty(message = "Не указано название фильма.")
     private String name;
-    @Size( max = 200, message = "Description must be up to 200 characters.")
+    @Size(max = 200, message = "Описание должно уместиться в 200 символов.")
     private String description;
+    @ValidDate(message = "Неверная дата релиза.")
     private LocalDate releaseDate;
     @Positive(message = "продолжительность должна быть положительной")
     private int duration;
 
-
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
 }
