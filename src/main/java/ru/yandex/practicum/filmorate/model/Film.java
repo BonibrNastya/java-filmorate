@@ -7,11 +7,9 @@ import ru.yandex.practicum.filmorate.annotation.filmDate.ValidDate;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Data
-//@Builder(toBuilder = true)
 public class Film {
     private long id;
     @NotEmpty(message = "Не указано название фильма.")
@@ -33,16 +31,6 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-    }
-
-    public void addLike(long userId) {
-        likedUsers.add(userId);
-        likes = likedUsers.size();
-    }
-
-    public void deleteLike(long userId) {
-        likedUsers.remove(userId);
-        likes = likedUsers.size();
     }
 
 }

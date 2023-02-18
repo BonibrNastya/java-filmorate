@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +29,7 @@ public class FilmService {
         }catch (NotFoundException e){
             throw new NotFoundException("Невозможно добавить лайк.");
         }
-        inMemoryFilmStorage.getById(filmId).addLike(userId);
+        setLike(filmId, userId);
     }
 
     public void deleteLike(long filmId, long userId) {
@@ -41,7 +39,7 @@ public class FilmService {
         }catch (NotFoundException e){
             throw new NotFoundException("Невозможно добавить лайк.");
         }
-        inMemoryFilmStorage.getById(filmId).deleteLike(userId);
+        removeLike(filmId, userId);
     }
 
     public List<Film> getPopular(int count) {
@@ -49,6 +47,20 @@ public class FilmService {
                 .sorted(COMPARE_BY_COUNT)
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+    private void setLike(long filmId, long userId){
+        inMemoryFilmStorage.getById(filmId).getLikedUsers().add(userId);
+        likesCounter(filmId);
+    }
+
+    private void removeLike(long filmId, long userId){
+        inMemoryFilmStorage.getById(filmId).getLikedUsers().remove(userId);
+        likesCounter(filmId);
+
+    }
+    private void likesCounter(long filmId){
+        long likes = inMemoryFilmStorage.getById(filmId).getLikedUsers().size();
+        inMemoryFilmStorage.getById(filmId).setLikes(likes);
     }
 
     public static final Comparator<Film> COMPARE_BY_COUNT = new Comparator<Film>() {

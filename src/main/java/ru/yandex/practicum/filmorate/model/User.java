@@ -30,8 +30,4 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
-
-    public void setFriends(Long friend) {
-        this.friends.add(friend);
-    }
 }

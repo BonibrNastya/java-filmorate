@@ -23,8 +23,9 @@ public class UserService {
         }catch (NotFoundException e){
             throw new NotFoundException(("Пользователь не найден"));
         }
-        inMemoryUserStorage.getById(userId).setFriends(friendId);
-        inMemoryUserStorage.getById(friendId).setFriends(userId);
+
+        setFriend(userId, friendId);
+        setFriend(friendId, userId);
     }
 
     public void deleteFriend(long userId, long friendId) {
@@ -56,6 +57,10 @@ public class UserService {
         List<User> commonFriends = new ArrayList<>(user);
         commonFriends.retainAll(friend);
         return commonFriends;
+    }
+
+    private void setFriend(long id, long otherId){
+        inMemoryUserStorage.getById(id).getFriends().add(otherId);
     }
 
 }
