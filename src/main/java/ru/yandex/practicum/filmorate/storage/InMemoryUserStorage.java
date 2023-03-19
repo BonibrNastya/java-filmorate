@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,26 +11,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
+
 @Component
+@Qualifier("InMemoryUserStorage")
+@Slf4j
+
 public class InMemoryUserStorage implements UserStorage {
 
     protected final Map<Long, User> users = new HashMap<>();
     public long idCounter = 1;
-
-    @Override
-    public User getById(long id) {
-        if (!users.containsKey(id)) {
-            throw new NotFoundException(String.format("Пользователь с id %d не найден.", id));
-        }
-        return users.get(id);
-    }
-
-    @Override
-    public Collection<User> findAll() {
-        log.debug("Текущее количество пользователей: {}", users.size());
-        return users.values();
-    }
 
     @Override
     public User create(User user) {
@@ -47,6 +37,20 @@ public class InMemoryUserStorage implements UserStorage {
         idCounter++;
         log.info("Добавлен новый пользователь: {}", user.toString());
         return user;
+    }
+
+    @Override
+    public User getById(long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException(String.format("Пользователь с id %d не найден.", id));
+        }
+        return users.get(id);
+    }
+
+    @Override
+    public Collection<User> findAll() {
+        log.debug("Текущее количество пользователей: {}", users.size());
+        return users.values();
     }
 
     @Override

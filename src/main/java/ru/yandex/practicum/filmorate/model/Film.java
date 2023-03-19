@@ -6,10 +6,13 @@ import ru.yandex.practicum.filmorate.annotation.filmDate.ValidDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
 
 @Data
+@AllArgsConstructor
+@Builder
+@RequiredArgsConstructor
 public class Film {
     private long id;
     @NotEmpty(message = "Не указано название фильма.")
@@ -20,17 +23,12 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "продолжительность должна быть положительной")
     private int duration;
+    private Mpa mpa;
+    private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
     private Set<Long> likedUsers = new HashSet<>();
-
     @JsonIgnore
     private long likes = 0L;
 
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
 
 }
