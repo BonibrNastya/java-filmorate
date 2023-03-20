@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -27,15 +26,6 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
     private final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-//    private static final RowMapper<User> USER_ROW_MAPPER = ((rs, rowNum) ->
-//            User.builder()
-//                    .id(rs.getLong("id"))
-//                    .email(rs.getString("email"))
-//                    .login(rs.getString("login"))
-//                    .birthday(rs.getDate("birthday").toLocalDate())
-//                    .name(rs.getString("user_name"))
-//                    .build());
-
 
     @Override
     public User create(User user) {

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -30,26 +29,6 @@ public class FilmDbStorage implements FilmStorage {
     private final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
     private MpaStorage mpaStorage;
-
-//    private final RowMapper<Mpa> MPA_ROW_MAPPER = (rs, rowNum) ->
-//            Mpa.builder()
-//                    .id(rs.getInt("mpa_id"))
-//                    .name(rs.getString("mpa_name"))
-//                    .build();
-
-//    private final RowMapper<Film> FILM_ROW_MAPPER = ((rs, rowNum) ->
-//            Film.builder()
-//                    .id(rs.getLong("film_id"))
-//                    .name(rs.getString("film_name"))
-//                    .description(rs.getString("description"))
-//                    .releaseDate(rs.getDate("film_release_date").toLocalDate())
-//                    .duration(rs.getInt("film_duration"))
-//                    .mpa(Mpa.builder()
-//                            .id(rs.getInt("mpa_id"))
-//                            .name(rs.getString("mpa_name"))
-//                            .build())
-//                    .genres(getGenreFromDB(rs.getLong("film_id")))
-//                    .build());
 
     @Override
     public Film getById(long id) {
