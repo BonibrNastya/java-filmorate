@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 
 import java.sql.Date;
@@ -28,31 +29,32 @@ import java.util.List;
 public class FilmDbStorage implements FilmStorage {
     private final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
+    private MpaStorage mpaStorage;
 
-    private final RowMapper<Mpa> MPA_ROW_MAPPER = (rs, rowNum) ->
-            Mpa.builder()
-                    .id(rs.getInt("mpa_id"))
-                    .name(rs.getString("mpa_name"))
-                    .build();
+//    private final RowMapper<Mpa> MPA_ROW_MAPPER = (rs, rowNum) ->
+//            Mpa.builder()
+//                    .id(rs.getInt("mpa_id"))
+//                    .name(rs.getString("mpa_name"))
+//                    .build();
 
-    private final RowMapper<Film> FILM_ROW_MAPPER = ((rs, rowNum) ->
-            Film.builder()
-                    .id(rs.getLong("film_id"))
-                    .name(rs.getString("film_name"))
-                    .description(rs.getString("description"))
-                    .releaseDate(rs.getDate("film_release_date").toLocalDate())
-                    .duration(rs.getInt("film_duration"))
-                    .mpa(Mpa.builder()
-                            .id(rs.getInt("mpa_id"))
-                            .name(rs.getString("mpa_name"))
-                            .build())
-                    .genres(getGenreFromDB(rs.getLong("film_id")))
-                    .build());
+//    private final RowMapper<Film> FILM_ROW_MAPPER = ((rs, rowNum) ->
+//            Film.builder()
+//                    .id(rs.getLong("film_id"))
+//                    .name(rs.getString("film_name"))
+//                    .description(rs.getString("description"))
+//                    .releaseDate(rs.getDate("film_release_date").toLocalDate())
+//                    .duration(rs.getInt("film_duration"))
+//                    .mpa(Mpa.builder()
+//                            .id(rs.getInt("mpa_id"))
+//                            .name(rs.getString("mpa_name"))
+//                            .build())
+//                    .genres(getGenreFromDB(rs.getLong("film_id")))
+//                    .build());
 
     @Override
     public Film getById(long id) {
         String sql = "select * from films f join rating_mpa r on f.mpa_id = r.mpa_id where f.film_id = ?";
-        List<Film> films = jdbcTemplate.query(sql, FILM_ROW_MAPPER);
+        List<Film> films = jdbcTemplate.query(sql, this::rowFilmToMap);
         if (films.size() == 1) {
             log.info("Найден фильм: {} {}", films.get(0).getId(), films.get(0).getName());
             return films.get(0);
@@ -64,9 +66,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        Collection<Film> films = jdbcTemplate.query("select * from films", FILM_ROW_MAPPER);
+        Collection<Film> films = jdbcTemplate.query("select * from films", this::rowFilmToMap);
+        List<Mpa> mpaFromDB = mpaStorage.findAll();
         for (Film f : films) {
-            f.setMpa(getMpaFromDB((int) f.getId()));
+            f.setMpa(mpaFromDB.get(f.getMpa().getId()));
         }
         return films;
     }
@@ -142,12 +145,12 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY f.film_id " +
                 "ORDER BY COUNT(l.user_id) " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sql, FILM_ROW_MAPPER, count);
+        return jdbcTemplate.query(sql, this::rowFilmToMap, count);
     }
 
     private Mpa getMpaFromDB(int id) {
         String sql = "SELECT * FROM rating_mpa";
-        return jdbcTemplate.queryForObject(sql, MPA_ROW_MAPPER, id);
+        return jdbcTemplate.queryForObject(sql, this::rowMpaToMap, id);
     }
 
     private List<Genre> getGenreFromDB(long id) {
@@ -170,6 +173,28 @@ public class FilmDbStorage implements FilmStorage {
         return Genre.builder()
                 .id(resultSet.getInt("genre_id"))
                 .name(resultSet.getString("genre_name"))
+                .build();
+    }
+
+    private Mpa rowMpaToMap(ResultSet rs, int rowNum) throws SQLException {
+        return Mpa.builder()
+                .id(rs.getInt("mpa_id"))
+                .name(rs.getString("mpa_name"))
+                .build();
+    }
+
+    private Film rowFilmToMap(ResultSet rs, int rowNum) throws SQLException {
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("film_name"))
+                .description(rs.getString("description"))
+                .releaseDate(rs.getDate("film_release_date").toLocalDate())
+                .duration(rs.getInt("film_duration"))
+                .mpa(Mpa.builder()
+                        .id(rs.getInt("mpa_id"))
+                        .name(rs.getString("mpa_name"))
+                        .build())
+                .genres(getGenreFromDB(rs.getLong("film_id")))
                 .build();
     }
 }

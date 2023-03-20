@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Qualifier("InMemoryFilmStorage")
@@ -73,17 +74,23 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private List<Genre> getGenresFilm(Film film) {
         List<Genre> genres = new ArrayList<>();
+        List<Genre> genresFromDB = genreStorage.findAll();
         if (film.getGenres().size() != 0) {
             for (Genre g : film.getGenres()) {
-                if (genreStorage.getById(g.getId()).getId() != (g.getId())) {
+               int id = g.getId();
+                if (!containsGenre(genresFromDB, id)) {
                     throw new NotFoundException("Жанр не найден.");
                 } else {
-                    Genre newGenre = genreStorage.getById(g.getId());
+                    Genre newGenre = genresFromDB.stream().filter(o -> o.getId() == id).collect(Collectors.toList()).get(0);
                     genres.add(newGenre);
                 }
             }
         }
         return genres.stream().distinct().collect(Collectors.toList());
+    }
+
+    private boolean containsGenre (final List<Genre> genres, final int id){
+        return genres.stream().anyMatch(o -> o.getId() == id);
     }
 
 }

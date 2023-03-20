@@ -16,6 +16,8 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,14 +27,14 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
     private final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-    private static final RowMapper<User> USER_ROW_MAPPER = ((rs, rowNum) ->
-            User.builder()
-                    .id(rs.getLong("id"))
-                    .email(rs.getString("email"))
-                    .login(rs.getString("login"))
-                    .birthday(rs.getDate("birthday").toLocalDate())
-                    .name(rs.getString("user_name"))
-                    .build());
+//    private static final RowMapper<User> USER_ROW_MAPPER = ((rs, rowNum) ->
+//            User.builder()
+//                    .id(rs.getLong("id"))
+//                    .email(rs.getString("email"))
+//                    .login(rs.getString("login"))
+//                    .birthday(rs.getDate("birthday").toLocalDate())
+//                    .name(rs.getString("user_name"))
+//                    .build());
 
 
     @Override
@@ -78,7 +80,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
-        return jdbcTemplate.query("select * from users", USER_ROW_MAPPER);
+        return jdbcTemplate.query("select * from users", this::rowUserToMap);
     }
 
     @Override
@@ -111,7 +113,7 @@ public class UserDbStorage implements UserStorage {
     public List<User> getAllFriends(long userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM users WHERE id IN (SELECT friend_id FROM friends WHERE id = ?)",
-                USER_ROW_MAPPER, userId);
+                this::rowUserToMap, userId);
     }
 
     public List<User> getCommonFriends(long userId, long friendId) {
@@ -119,6 +121,16 @@ public class UserDbStorage implements UserStorage {
                 "SELECT * FROM users WHERE id IN " +
                         "(SELECT friend_id FROM friends WHERE id = ?)" +
                         "AND (SELECT friend_id FROM friends WHERE id = ?)",
-                USER_ROW_MAPPER, userId, friendId);
+                this::rowUserToMap, userId, friendId);
+    }
+
+    private User rowUserToMap(ResultSet rs, int rowNum) throws SQLException {
+        return User.builder()
+                .id(rs.getLong("id"))
+                .email(rs.getString("email"))
+                .login(rs.getString("login"))
+                .birthday(rs.getDate("birthday").toLocalDate())
+                .name(rs.getString("user_name"))
+                .build();
     }
 }
