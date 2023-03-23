@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.filmorate.annotation.userLogin.ValidLogin;
 
 
@@ -12,9 +15,12 @@ import java.util.Set;
 
 
 @Data
+@AllArgsConstructor
+@Builder
+@RequiredArgsConstructor
 public class User {
     private long id;
-    @Email(message = "Email should be valid")
+    @Email(message = "Email невалидный.")
     private String email;
     @ValidLogin(message = "Невалидный логин.")
     private String login;
@@ -24,10 +30,4 @@ public class User {
     @JsonIgnore
     private Set<Long> friends = new HashSet<>();
 
-    public User(String email, String login, String name, LocalDate birthday) {
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    }
 }

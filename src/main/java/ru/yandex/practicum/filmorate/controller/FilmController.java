@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
@@ -13,12 +13,12 @@ import java.util.*;
 @RequestMapping("/films")
 public class FilmController {
     private final InMemoryFilmStorage inMemoryFilmStorage;
-    private final FilmService filmService;
+    private final FilmServiceImpl filmServiceImpl;
 
     @Autowired
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
+    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmServiceImpl filmServiceImpl) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.filmService = filmService;
+        this.filmServiceImpl = filmServiceImpl;
     }
 
     @GetMapping
@@ -36,7 +36,7 @@ public class FilmController {
         if (count <= 0) {
             throw new IllegalArgumentException("Количество популярных фильмов не может быть отрицательным.");
         }
-        return filmService.getPopular(count);
+        return filmServiceImpl.getPopular(count);
     }
 
     @PostMapping
@@ -52,12 +52,12 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void putLike(@PathVariable("id") long filmId,
                         @PathVariable("userId") long userId) {
-        filmService.addLike(filmId, userId);
+        filmServiceImpl.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable("id") long filmId,
                            @PathVariable("userId") long userId) {
-        filmService.deleteLike(filmId, userId);
+        filmServiceImpl.deleteLike(filmId, userId);
     }
 }

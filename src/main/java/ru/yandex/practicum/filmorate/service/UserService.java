@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,38 +12,34 @@ import java.util.*;
 public class UserService {
     private final InMemoryUserStorage inMemoryUserStorage;
 
-    public UserService(InMemoryUserStorage inMemoryUserStorage) {
+    public UserService(@Qualifier("InMemoryUserStorage") InMemoryUserStorage inMemoryUserStorage) {
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
-
 
     public void addFriend(long userId, long friendId) {
         try {
             inMemoryUserStorage.getById(userId);
             inMemoryUserStorage.getById(friendId);
-        }catch (NotFoundException e){
+        } catch (NotFoundException e) {
             throw new NotFoundException(("Пользователь не найден"));
         }
 
         setFriend(userId, friendId);
-        setFriend(friendId, userId);
     }
 
     public void deleteFriend(long userId, long friendId) {
         try {
             inMemoryUserStorage.getById(userId);
-            inMemoryUserStorage.getById(friendId);
-        }catch (NotFoundException e){
+        } catch (NotFoundException e) {
             throw new NotFoundException(("Пользователь не найден"));
         }
         inMemoryUserStorage.getById(userId).getFriends().remove(friendId);
-        inMemoryUserStorage.getById(friendId).getFriends().remove(userId);
     }
 
     public List<User> getAllFriends(Long id) {
         List<User> userFriends = new ArrayList<>();
         Set<Long> friends = inMemoryUserStorage.getById(id).getFriends();
-        if (friends.size() == 0){
+        if (friends.size() == 0) {
             return userFriends;
         }
         for (Long l : friends) {
@@ -54,12 +51,16 @@ public class UserService {
     public List<User> getCommonFriends(long id, long otherId) {
         List<User> user = getAllFriends(id);
         List<User> friend = getAllFriends(otherId);
-        List<User> commonFriends = new ArrayList<>(user);
-        commonFriends.retainAll(friend);
-        return commonFriends;
+        if (!user.isEmpty()) {
+            List<User> commonFriends = new ArrayList<>(user);
+            commonFriends.retainAll(friend);
+            return commonFriends;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
-    private void setFriend(long id, long otherId){
+    private void setFriend(long id, long otherId) {
         inMemoryUserStorage.getById(id).getFriends().add(otherId);
     }
 
